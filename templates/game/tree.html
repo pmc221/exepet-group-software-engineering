@@ -1,0 +1,421 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXEPET</title>
+<style> 
+  * {
+    /* border: red 2px solid; */
+    touch-action: manipulation; /* Prevent double-tap zoom */
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    position: relative;
+    min-height: 100vh; /* Ensure the body covers the entire viewport height */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-y: hidden; /* Prevent vertical scrolling */
+    background-image: url("/static/images/BG_black.jpg");
+    background-size: cover; /* Adjust as needed */
+    background-repeat: no-repeat;
+    background-position: center center;
+
+  }
+  .container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 60px); /* Adjusted for bottom bar height */
+    overflow: hidden;
+    padding-bottom: 8vh; /* Ensure content doesn't get hidden behind the bottom bar */
+  }
+  .button-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px; /* Adjusted to top left corner */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    z-index: 9999; /* Adjusted to ensure it's always on top */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+  }
+  .sub-session {
+    position: absolute;
+    top: 0;
+    left: -40%; /* Adjusted to 40% width */
+    width: 30%;
+    height: 100%;
+    background-color: #007d69;
+    box-shadow: 0 0 10px rgba(215, 90, 90, 0.1);
+    transition: left 0.3s ease;
+    z-index: 3;
+  }
+  .sub-session.open {
+    left: 0; /* Slide in when open */
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 2; /* Adjusted to ensure it's below the button */
+  }
+  .overlay.active {
+    display: block;
+  }
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8%; /* 8% of viewport height */
+    background-color: #333;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 9999; /* Ensure it's always on top */
+  }
+
+  .bottom-bar img {
+    width: auto; /* Adjust the width to make the images smaller */
+    max-height: 90%; /* Maintain aspect ratio */
+    transition: transform 0.3s ease; /* Add transition for smooth scaling */
+}
+
+.bottom-bar img:hover {
+    transform: scale(0.9); /* Scale the image down to 90% on hover */
+}
+
+  .sub-session-content {
+    padding: 0% 0;
+    text-align: center;
+  }
+  .sub-session-content-logout {
+    padding: 0% 0;
+    text-align: center;
+    position: absolute;
+    bottom: 20%;
+    width: 100%;
+  }
+  .image-container {
+      /* border: red 5px solid; */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+  .image-container img {
+        max-height: 100%; /* Ensure the image height doesn't exceed the viewport height */
+        width: auto; /* Ensure the image width doesn't exceed the viewport width */
+  }
+  .cherry-container {
+    position: absolute;
+    border: 4px solid rgb(255, 75, 75);
+    background-color: white;
+    border-radius: 20px;
+    top: 5px;
+    right: 5px;
+    width: 200px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .cherry-container img {
+    position: absolute;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 95%;
+    left:5%;
+  }
+  #cherry_num {
+    position: absolute;
+    right: 40%;
+    color: red;
+    font-size: 35px;
+    font-family: "Arial";
+  }
+  #outting_cherry{
+    position: absolute;
+    color: red;
+    font-size: 25px;
+    font-family: "Arial";
+  }
+  .shop-container{
+    position: absolute;
+    width: 80%;
+    height: 40%;
+    max-width : 500px;
+    max-height: 600px;
+    border: red 2px solid;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    justify-content: center;
+    align-items: center;
+    top: 15%;
+  }
+  .shop-container h2{
+    color: white;
+    font-size: 30px;
+    text-align: center;
+  }
+  .tool-container{
+    position: absolute;
+    left: 2.5%;
+    top: 30%;
+    width : 100%;
+    max-width : 95%;
+    height: 200px;
+    max-height: 95%;
+    border: red 2px solid;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+  }
+.the-tool-box{
+    position: static;
+    width: 30%;
+    height: auto;
+    border: red 2px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 4px;
+    border-radius: 25px;
+    transition: transform 0.3s ease; 
+}
+.the-tool-box:hover{
+    transform: scale(0.9); /* Scale the image down to 90% on hover */
+}
+.the-tool-box img {
+    width: 100%;
+    height: auto;
+    border: red 2px solid;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 95%;
+    left:5%;
+    transition: transform 0.3s ease; 
+
+}
+.start-button{
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: red 2px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 70%;
+    transition: transform 0.3s ease; 
+}
+/* .the-selection-box{
+    position: absolute;
+    width: 30%;
+    top: 80%;
+    left: 35%;
+    height: auto;
+    border: red 2px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+} */
+/* .button{
+    position: static;
+    width: 50px;
+    height: 50px;
+    border: red 2px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    z-index: 9999; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    transition: transform 0.3s ease; 
+
+} */
+
+.start-button:hover{
+    transform: scale(0.9); /* Scale the image down to 90% on hover */
+
+}
+
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="sub-session" id="subSession">
+    <div style="width: 100%; height: 10%"></div>
+    
+    <h2 class="sub-session-content" onclick="refreshPage()">HOME</h2>
+    <h2 class="sub-session-content" onclick="alert('SHOP clicked')">SHOP</h2>
+    <h2 class="sub-session-content" onclick="alert('History clicked')">History</h2>
+    <h2 class="sub-session-content" onclick="alert('About clicked')">About</h2>
+
+    <h2 class="sub-session-content-logout" onclick="alert('log out clicked')">Log Out</h2>
+  </div>
+  
+  <div class="image-container">
+    <img src="{% static 'images/BG.jpg' %}" alt="BG">
+
+    <div class="shop-container">
+
+      <h2>  Shop:</h2>
+
+        <div class="tool-container">
+            <div class="the-tool-box" id="button1" onclick="selectButton('button1', '#00dea5')">
+                <img src="{% static 'images/SHOWER.png' %}" alt="SHOWER" >
+            </div>
+            <div class="the-tool-box" id="button2" onclick="selectButton('button2', '#00dea5')">
+                <img src="{% static 'images/SHOVEL.png' %}" alt="SHOVEL" >
+            </div>
+            <div class="the-tool-box" id="button3" onclick="selectButton('button3', '#00dea5')"> 
+                <img src="{% static 'images/PLANT FOOD.png' %}" alt="PLANTFOOD" >
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="start-button">
+        <img src="{% static 'images/START.png' %}" alt="start" class="start_button" onclick="startPetWalk()">
+    </div>
+
+
+
+
+
+    <div class="bottom-bar">
+      <img src="{% static 'images/MAP.png' %}" alt="MAP" onclick="window.location.href='https://www.google.com/maps/d/u/0/embed?mid=1ZKJKDqcsVvyf16X0onBdjC6OXEfv1cc&ehbc=2E312F'">
+      <img src="{% static 'images/SCAN.png' %}" alt="SCAN"  onclick="toScan()">
+      <img src="{% static 'images/QR_code.png' %}" alt="QRCODE"  onclick="toQRcode()">
+    </div>
+  </div>
+
+  <div class="cherry-container">
+    <img src="{% static 'images/cherry.png' %}" alt="CHERRY" >
+    <p id="cherry_num">error</p>
+
+    <!-- This is the text that will not be displayed normally-->
+    <!-- <p id="outting_cherry">Be Right Back</p>  -->
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="overlay" id="overlay" onclick="toggleSubSession()"></div> <!-- Close the sub-session when clicking on the overlay -->
+</div>
+
+<button class="button-toggle" onclick="toggleSubSession()">≡</button>
+
+
+
+
+
+
+
+<script>
+
+    // // Define a JavaScript variable
+    // var cherry_num_value = 2;
+            
+    // Access the <p> element using its ID
+    var cherry_num_element = document.getElementById("cherry_num");
+        
+    // Set the content of the <p> element to the value of the JavaScript variable
+    cherry_num_element.textContent = "{{user.userprofile.cherries}}";
+
+    function toggleSubSession() {
+    var subSession = document.getElementById("subSession");
+    var overlay = document.getElementById("overlay");
+    subSession.classList.toggle("open");
+    overlay.classList.toggle("active");
+    }
+    function refreshPage() {
+        location.reload(); // This line reloads the page
+    }
+
+    function toShop() {
+      window.location.href = "{% url 'shop' %}";
+  }
+
+  function toGame() {
+      window.location.href = "{% url 'game' %}";
+  }
+  function toQRcode() {
+      window.location.href = "{% url 'qrcode' %}";
+  }
+  function toScan() {
+      window.location.href = "{% url 'scan' %}";
+  }
+
+
+  function selectButton(buttonId, color) {
+    // Get the clicked button
+    var button = document.getElementById(buttonId);
+    var button_img = button.getElementsByTagName('img')[0];
+    
+    // Check if the button is currently selected
+    var isSelected = button.style.backgroundColor === color;
+    
+    // Deselect all buttons
+    var buttons = document.querySelectorAll('.the-tool-box');
+    buttons.forEach(function(btn) {
+        btn.style.backgroundColor = '';
+        btn.getElementsByTagName('img')[0].style.transform = 'scale(1)';
+    });
+    
+    // Toggle the selection state of the clicked button
+    if (!isSelected) {
+        // Select the button
+        button.style.backgroundColor = color;
+        button_img.style.transform = 'scale(0.9)';
+    } else {
+        // Deselect the button
+        button.style.backgroundColor = '';
+        button_img.style.transform = 'scale(1)';
+    }
+}
+
+
+</script>
+
+</body>
+</html>
